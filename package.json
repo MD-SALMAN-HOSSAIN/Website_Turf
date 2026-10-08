@@ -1,0 +1,11 @@
+{
+  "name": "website-turf-agent",
+  "version": "1.0.0",
+  "description": "A lightweight local agent scaffold for task planning and execution.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  }
+}
