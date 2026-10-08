@@ -1,0 +1,10 @@
+#Site is live and login works.
+#Running now
+- Dev server: http://localhost:3000 (background process, log at %TEMP%\next-dev.log)
+- PostgreSQL 17 installed as a Windows service (postgresql-x64-17, port 5432), database turfhub created, schema pushed and seeded
+Admin login — http://localhost:3000/admin/login
+- Email: salman00hossain@gmail.com
+- Password: 12345
+#(These come from ADMIN_EMAIL/ADMIN_PASSWORD in .env:3-4, used by prisma/seed.ts:72-74. To change them, edit .env then run npm run db:seed again — note the seed's upsert won't update an existing admin's password, so delete the row first if you change it.)
+To restart later: npm run dev in D:\Website_Turf.
+Verified: / → 200, /admin/login → 200, POST /api/auth → {"ok":true,"name":"Super Admin"}. No code was changed.
