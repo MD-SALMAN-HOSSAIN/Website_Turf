@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --neon: #b4ff39;
+  --charcoal: #0c0f0c;
+  --surface: #151a14;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-charcoal text-white/90 font-sans antialiased;
+}
+
+::selection {
+  background: var(--neon);
+  color: #0c0f0c;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0f120f;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2a3128;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3b4438;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.text-glow {
+  text-shadow: 0 0 22px rgba(180, 255, 57, 0.45);
+}
+
+.glow-ring {
+  box-shadow:
+    0 0 0 1px rgba(180, 255, 57, 0.4),
+    0 0 28px rgba(180, 255, 57, 0.16);
+}
+
+@layer components {
+  .surface-card {
+    @apply bg-surface rounded-2xl ring-1 ring-white/10;
+  }
+}
+
+@media print {
+  body,
+  html {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-card {
+    border: 1px solid #000000 !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  .print-card * {
+    color: #000000 !important;
+  }
+}

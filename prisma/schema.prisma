@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum PaymentMethod {
+  CASH
+  BKASH
+  NAGAD
+  ROCKET
+  CARD
+}
+
+model Pitch {
+  id           String         @id @default(cuid())
+  slug         String         @unique
+  name         String
+  sport        String
+  dimensions   String
+  ratePerHour  Int
+  imageUrl     String?
+  description  String?
+  order        Int            @default(0)
+  active       Boolean        @default(true)
+  createdAt    DateTime       @default(now())
+  bookings     Booking[]
+  slotOverrides SlotOverride[]
+}
+
+model Booking {
+  id            String        @id @default(cuid())
+  code          String        @unique
+  pitchId       String
+  pitch         Pitch         @relation(fields: [pitchId], references: [id], onDelete: Cascade)
+  date          String
+  startTime     String
+  endTime       String
+  name          String
+  phone         String
+  nid           String
+  teamName      String?
+  paymentMethod PaymentMethod
+  status        BookingStatus @default(PENDING)
+  amount        Int
+  notes         String?
+  manual        Boolean       @default(false)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([date])
+  @@index([phone])
+  @@index([nid])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model SlotOverride {
+  id           String   @id @default(cuid())
+  pitchId      String
+  pitch        Pitch    @relation(fields: [pitchId], references: [id], onDelete: Cascade)
+  date         String
+  startTime    String
+  endTime      String
+  isBlocked    Boolean  @default(true)
+  reason       String?
+  rateOverride Int?
+  createdAt    DateTime @default(now())
+
+  @@unique([pitchId, date, startTime])
+  @@index([date])
+}
+
+model SiteConfig {
+  id             String   @id @default("singleton")
+  siteName       String   @default("TurfHub")
+  tagline        String?
+  noticeText     String?
+  noticeEnabled  Boolean  @default(false)
+  address        String?
+  phone          String?
+  emergencyPhone String?
+  email          String?
+  openingTime    String   @default("06:00")
+  closingTime    String   @default("23:00")
+  mapsUrl        String?
+  facebookUrl    String?
+  updatedAt      DateTime @updatedAt
+}
+
+model AdminUser {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  name         String
+  role         String    @default("ADMIN")
+  createdAt    DateTime  @default(now())
+  lastLoginAt  DateTime?
+}
