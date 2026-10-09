@@ -46,6 +46,7 @@ export default function PitchSelector({
                     src={pitch.imageUrl}
                     alt={pitch.name}
                     fill
+                    unoptimized
                     sizes="(max-width: 768px) 100vw, 33vw"
                     className="object-cover transition duration-300 group-hover:scale-105"
                     onError={() =>

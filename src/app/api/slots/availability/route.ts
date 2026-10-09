@@ -112,12 +112,10 @@ async function handleGet(request: NextRequest) {
   const date =
     dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam) ? dateParam : todayIso();
 
-  const pitches = (
-    await db.pitch.findMany({
-      where: { active: true },
-      orderBy: { order: "asc" },
-    })
-  ).filter((pitch) => pitch.sport.trim().toLowerCase() !== "cricket");
+  const pitches = await db.pitch.findMany({
+    where: { active: true },
+    orderBy: { order: "asc" },
+  });
 
   if (pitches.length === 0) {
     return NextResponse.json(
