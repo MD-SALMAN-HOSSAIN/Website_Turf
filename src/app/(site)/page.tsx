@@ -53,7 +53,7 @@ export default function HomePage() {
   }, [date, data?.pitch.id]);
 
   const dates = useMemo(
-    () => Array.from({ length: 8 }, (_, index) => addDaysIso(todayIso(), index)),
+    () => Array.from({ length: 90 }, (_, index) => addDaysIso(todayIso(), index)),
     []
   );
 
