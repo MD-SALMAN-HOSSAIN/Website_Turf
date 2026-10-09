@@ -8,7 +8,7 @@ export async function middleware(request: NextRequest) {
 
   if (pathname === "/admin/login") {
     if (session) {
-      return NextResponse.redirect(new URL("/admin", request.url));
+      return NextResponse.redirect(new URL("/admin/dashboard", request.url));
     }
     return NextResponse.next();
   }

@@ -26,7 +26,7 @@ export default function AdminLoginPage() {
         setError((json as { error?: string }).error ?? "Login failed.");
         return;
       }
-      router.replace("/admin");
+      router.replace("/admin/dashboard");
       router.refresh();
     } catch {
       setError("Network error. Please try again.");

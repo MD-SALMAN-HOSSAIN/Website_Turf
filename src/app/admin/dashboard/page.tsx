@@ -14,15 +14,17 @@ export default async function AdminDashboardPage() {
   const monthPrefix = today.slice(0, 7);
 
   const [
+    totalBookings,
+    activeCourts,
     confirmedToday,
     pendingCount,
     cancelledToday,
     monthRows,
-    monthConfirmed,
-    pitches,
     todaySchedule,
     config,
   ] = await Promise.all([
+    db.booking.count(),
+    db.pitch.count({ where: { active: true } }),
     db.booking.findMany({
       where: { date: today, status: "CONFIRMED" },
       include: { pitch: true },
@@ -32,13 +34,8 @@ export default async function AdminDashboardPage() {
     db.booking.count({ where: { date: today, status: "CANCELLED" } }),
     db.booking.findMany({
       where: { date: { startsWith: monthPrefix } },
-      select: { amount: true, status: true, date: true },
+      select: { amount: true, status: true },
     }),
-    db.booking.findMany({
-      where: { date: { startsWith: monthPrefix }, status: "CONFIRMED" },
-      select: { amount: true },
-    }),
-    db.pitch.count({ where: { active: true } }),
     db.booking.findMany({
       where: { date: today },
       include: { pitch: true },
@@ -49,65 +46,92 @@ export default async function AdminDashboardPage() {
   ]);
 
   const revenueToday = confirmedToday.reduce((sum, booking) => sum + booking.amount, 0);
+  const monthConfirmed = monthRows.filter((booking) => booking.status === "CONFIRMED");
   const revenueMonth = monthConfirmed.reduce((sum, booking) => sum + booking.amount, 0);
-  const allSlotsCount = monthRows.length;
+  const bookingsMonth = monthRows.length;
 
   const opening = config?.openingTime ?? DEFAULT_OPENING;
   const closing = config?.closingTime ?? DEFAULT_CLOSING;
   const slotsToday = generateSlotRanges(opening, closing).length;
 
-  const pitchesBookedToday = new Set(todaySchedule.map((booking) => booking.pitchId)).size;
+  const courtsBookedToday = new Set(todaySchedule.map((booking) => booking.pitchId)).size;
 
   const kpis = [
-    { label: "Bookings today", value: String(confirmedToday.length), hint: "Confirmed" },
-    { label: "Revenue today", value: formatBdt(revenueToday), hint: "Confirmed only" },
-    { label: "Pending approvals", value: String(pendingCount), hint: "Awaiting confirm" },
-    { label: "This month", value: `${allSlotsCount} · ${formatBdt(revenueMonth)}`, hint: "Bookings · revenue" },
+    {
+      label: "Total bookings",
+      value: String(totalBookings),
+      hint: "All time",
+      icon: "🧾",
+    },
+    {
+      label: "Active courts",
+      value: String(activeCourts),
+      hint: "Live on the website",
+      icon: "🏟️",
+    },
+    {
+      label: "Revenue today",
+      value: formatBdt(revenueToday),
+      hint: `${confirmedToday.length} confirmed`,
+      icon: "💵",
+    },
+    {
+      label: "Pending approvals",
+      value: String(pendingCount),
+      hint: "Awaiting confirmation",
+      icon: "⏳",
+    },
+  ];
+
+  const secondary = [
+    { label: "Bookings this month", value: String(bookingsMonth), hint: formatBdt(revenueMonth) },
+    { label: "Courts booked today", value: `${courtsBookedToday} / ${activeCourts}`, hint: "Unique courts" },
+    { label: "Slot capacity / day", value: `${slotsToday}`, hint: `${opening} – ${closing}` },
+    { label: "Cancelled today", value: String(cancelledToday), hint: "Across all courts" },
   ];
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="font-display text-2xl font-bold">Dashboard</h1>
-        <p className="mt-1 text-sm text-white/50">
-          {today} — here&apos;s what&apos;s happening across {pitches} active pitches.
-        </p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="font-display text-2xl font-bold">Dashboard</h1>
+          <p className="mt-1 text-sm text-white/50">
+            {today} — here&apos;s what&apos;s happening across {activeCourts} active courts.
+          </p>
+        </div>
+        <Link
+          href="/admin/bookings"
+          className="rounded-xl px-4 py-2.5 text-sm font-medium text-white/70 ring-1 ring-white/15 transition hover:text-white"
+        >
+          Manage bookings →
+        </Link>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {kpis.map((kpi) => (
           <div key={kpi.label} className="surface-card p-5">
-            <p className="text-xs font-semibold uppercase tracking-wide text-white/50">
-              {kpi.label}
-            </p>
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-semibold uppercase tracking-wide text-white/50">
+                {kpi.label}
+              </p>
+              <span className="text-base">{kpi.icon}</span>
+            </div>
             <p className="mt-2 font-display text-2xl font-bold text-neon">{kpi.value}</p>
             <p className="mt-1 text-xs text-white/40">{kpi.hint}</p>
           </div>
         ))}
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        <div className="surface-card p-5">
-          <p className="text-xs font-semibold uppercase tracking-wide text-white/50">
-            Pitches booked today
-          </p>
-          <p className="mt-2 font-display text-2xl font-bold">
-            {pitchesBookedToday} / {pitches}
-          </p>
-        </div>
-        <div className="surface-card p-5">
-          <p className="text-xs font-semibold uppercase tracking-wide text-white/50">
-            Slot capacity / day
-          </p>
-          <p className="mt-2 font-display text-2xl font-bold">{slotsToday} per pitch</p>
-          <p className="mt-1 text-xs text-white/40">{opening} – {closing} operating hours</p>
-        </div>
-        <div className="surface-card p-5">
-          <p className="text-xs font-semibold uppercase tracking-wide text-white/50">
-            Cancelled today
-          </p>
-          <p className="mt-2 font-display text-2xl font-bold">{cancelledToday}</p>
-        </div>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {secondary.map((item) => (
+          <div key={item.label} className="surface-card p-5">
+            <p className="text-xs font-semibold uppercase tracking-wide text-white/50">
+              {item.label}
+            </p>
+            <p className="mt-2 font-display text-xl font-bold">{item.value}</p>
+            <p className="mt-1 text-xs text-white/40">{item.hint}</p>
+          </div>
+        ))}
       </div>
 
       <div>
@@ -132,7 +156,7 @@ export default async function AdminDashboardPage() {
                 <tr className="border-b border-white/10 text-xs uppercase tracking-wide text-white/50">
                   <th className="px-4 py-3">Time</th>
                   <th className="px-4 py-3">Code</th>
-                  <th className="px-4 py-3">Pitch</th>
+                  <th className="px-4 py-3">Court</th>
                   <th className="px-4 py-3">Booked by</th>
                   <th className="px-4 py-3">Team</th>
                   <th className="px-4 py-3">Status</th>

@@ -27,7 +27,7 @@ export default function Header({ siteName }: HeaderProps) {
           <Link href="/track" className="transition hover:text-neon">
             Find my booking
           </Link>
-          <Link href="/admin" className="rounded-lg px-3 py-1.5 ring-1 ring-white/15 transition hover:text-neon">
+          <Link href="/admin/dashboard" className="rounded-lg px-3 py-1.5 ring-1 ring-white/15 transition hover:text-neon">
             Admin
           </Link>
         </nav>
