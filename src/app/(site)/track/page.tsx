@@ -3,7 +3,15 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import Link from "next/link";
-import { formatBdt, formatDateLong, formatHourRange, maskNid, maskPhone } from "@/lib/utils";
+import {
+  CANCELLATION_WINDOW_HOURS,
+  formatBdt,
+  formatDateLong,
+  formatHourRange,
+  hoursUntilSlot,
+  maskNid,
+  maskPhone,
+} from "@/lib/utils";
 import { normalizeNid, normalizePhone } from "@/lib/nid-validator";
 import CancelBookingButton from "@/components/booking/CancelBookingButton";
 import type { Booking } from "@/types/booking";
@@ -14,6 +22,24 @@ const STATUS_STYLE: Record<string, string> = {
   CANCELLED: "bg-red-500/10 text-red-300 ring-red-500/30",
   COMPLETED: "bg-white/10 text-white/70 ring-white/20",
 };
+
+function Meta({ icon, label, value }: { icon: string; label: string; value: string }) {
+  return (
+    <div className="flex items-start gap-2.5">
+      <span className="mt-0.5 text-sm leading-none" aria-hidden="true">
+        {icon}
+      </span>
+      <div className="min-w-0">
+        <p className="text-[10px] font-semibold uppercase tracking-wide text-white/40">
+          {label}
+        </p>
+        <p className="max-w-[15rem] truncate text-sm font-medium text-white/80" title={value}>
+          {value}
+        </p>
+      </div>
+    </div>
+  );
+}
 
 export default function TrackPage() {
   const [query, setQuery] = useState("");
@@ -105,60 +131,96 @@ export default function TrackPage() {
           <h2 className="font-display text-lg font-semibold">
             {bookings.length} booking{bookings.length > 1 ? "s" : ""} found
           </h2>
-          {bookings.map((booking) => (
-            <div
-              key={booking.id}
-              className="surface-card flex flex-wrap items-center justify-between gap-4 px-5 py-4"
-            >
-              <div>
-                <div className="flex items-center gap-3">
-                  <span className="font-display text-base font-bold text-neon">
+          {bookings.map((booking) => {
+            const eligible =
+              booking.status === "PENDING" || booking.status === "CONFIRMED"
+                ? hoursUntilSlot(booking.date, booking.startTime) >= CANCELLATION_WINDOW_HOURS
+                : false;
+            const bookedFor = booking.teamName
+              ? `${booking.name} • ${booking.teamName}`
+              : booking.name;
+            return (
+              <div
+                key={booking.id}
+                className="group rounded-2xl border border-white/10 bg-[#121316] transition hover:border-[#c4f03a]/40"
+              >
+                <div className="flex items-center justify-between gap-4 border-b border-white/10 px-5 py-4">
+                  <span className="font-display text-xl font-extrabold tracking-wide text-[#c4f03a]">
                     {booking.code}
                   </span>
                   <span
                     className={
-                      "rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ring-1 " +
+                      "rounded-full px-2.5 py-1 text-[10px] font-bold uppercase ring-1 " +
                       (STATUS_STYLE[booking.status] ?? STATUS_STYLE.PENDING)
                     }
                   >
                     {booking.status}
                   </span>
                 </div>
-                <p className="mt-1 text-sm font-medium">
-                  {booking.pitchName ?? "Pitch"} · {formatHourRange(booking.startTime, booking.endTime)}
-                </p>
-                <p className="text-xs text-white/50">
-                  {formatDateLong(booking.date)} · {booking.name} ·{" "}
-                  {booking.teamName ?? "No team"}
-                </p>
-                <p className="text-xs text-white/40">
-                  NID {maskNid(booking.nid)} · Phone {maskPhone(booking.phone)}
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="font-display text-lg font-bold text-neon">
-                  {formatBdt(booking.amount)}
-                </p>
-                <p className="text-xs text-white/50">{booking.paymentMethod}</p>
-                <Link
-                  href={`/booking/success?code=${booking.code}`}
-                  className="mt-1 inline-block text-xs font-medium text-neon hover:underline"
-                >
-                  View voucher →
-                </Link>
-                <div className="mt-2">
-                  <CancelBookingButton
-                    booking={booking}
-                    onCancelled={(updated) =>
-                      setBookings((prev) =>
-                        prev ? prev.map((item) => (item.id === updated.id ? updated : item)) : prev
-                      )
-                    }
-                  />
+
+                <div className="grid gap-5 px-5 py-5 sm:grid-cols-[1fr_auto] sm:gap-6">
+                  <div className="min-w-0 space-y-4">
+                    <p className="font-display text-lg font-semibold leading-tight">
+                      {booking.pitchName ?? "Pitch"}
+                    </p>
+                    <div className="grid gap-x-6 gap-y-3 sm:grid-cols-2">
+                      <Meta icon="📅" label="Date" value={formatDateLong(booking.date)} />
+                      <Meta
+                        icon="⏰"
+                        label="Time"
+                        value={formatHourRange(booking.startTime, booking.endTime)}
+                      />
+                      <Meta icon="👤" label="Booked by" value={bookedFor} />
+                      <Meta
+                        icon="📞"
+                        label="Contact"
+                        value={`${maskPhone(booking.phone)} • NID ${maskNid(booking.nid)}`}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col items-start justify-center gap-2 border-t border-white/10 pt-5 sm:w-44 sm:border-l sm:border-t-0 sm:pl-6 sm:pt-0">
+                    <p className="text-[10px] font-semibold uppercase tracking-widest text-white/50">
+                      Total amount
+                    </p>
+                    <p className="font-display text-2xl font-extrabold text-[#c4f03a]">
+                      {formatBdt(booking.amount)}
+                    </p>
+                    <span className="rounded-full bg-[#c4f03a]/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#c4f03a] ring-1 ring-[#c4f03a]/40">
+                      {booking.paymentMethod}
+                    </span>
+                    <Link
+                      href={`/booking/success?code=${booking.code}`}
+                      className="mt-1 rounded-xl bg-[#c4f03a] px-4 py-2 text-xs font-bold text-[#121316] shadow-[0_0_14px_rgba(196,240,58,0.22)] transition hover:brightness-110"
+                    >
+                      View Voucher →
+                    </Link>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between gap-3 border-t border-white/10 px-5 py-3 text-xs">
+                  <p className="flex min-w-0 items-center gap-2 text-white/40">
+                    <span aria-hidden="true">⚠️</span>
+                    <span>
+                      {eligible
+                        ? `Free cancellation up to ${CANCELLATION_WINDOW_HOURS}h before your slot.`
+                        : `Cancellation closed — must cancel ${CANCELLATION_WINDOW_HOURS}h before slot.`}
+                    </span>
+                  </p>
+                  {eligible && (
+                    <CancelBookingButton
+                      booking={booking}
+                      onCancelled={(updated) =>
+                        setBookings((prev) =>
+                          prev ? prev.map((item) => (item.id === updated.id ? updated : item)) : prev
+                        )
+                      }
+                    />
+                  )}
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
