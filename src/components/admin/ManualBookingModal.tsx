@@ -135,7 +135,7 @@ export default function ManualBookingModal({
               >
                 {pitches.map((pitch) => (
                   <option key={pitch.id} value={pitch.id}>
-                    {pitch.name} — ৳{pitch.ratePerHour}/hr
+                    {pitch.name} — ৳{pitch.ratePerSlot}/slot
                   </option>
                 ))}
               </select>

@@ -23,7 +23,7 @@ function serializePitch(pitch: PitchModel): Pitch {
     name: pitch.name,
     sport: pitch.sport,
     dimensions: pitch.dimensions,
-    ratePerHour: pitch.ratePerHour,
+    ratePerSlot: pitch.ratePerSlot,
     imageUrl: pitch.imageUrl,
     description: pitch.description,
     order: pitch.order,
@@ -80,7 +80,7 @@ function buildSlots(
       endTime: range.endTime,
       period: getPeriod(range.startTime),
       state,
-      price: Math.round((rateOverride?.rateOverride ?? pitch.ratePerHour) * (config.slotMinutes / 60)),
+      price: Math.round(rateOverride?.rateOverride ?? pitch.ratePerSlot),
       reason: blockedOverride?.reason ?? null,
     };
   });
@@ -142,6 +142,7 @@ async function handleGet(request: NextRequest) {
         pitchId: pitch.id,
         date,
         status: { in: ["PENDING", "CONFIRMED"] },
+        deletedAt: null,
       },
     }),
     db.slotOverride.findMany({ where: { pitchId: pitch.id, date } }),

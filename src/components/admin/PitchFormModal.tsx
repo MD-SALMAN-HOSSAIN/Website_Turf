@@ -33,7 +33,7 @@ export default function PitchFormModal({
   const [name, setName] = useState(initial?.name ?? "");
   const [sport, setSport] = useState(initial?.sport ?? "Football");
   const [dimensions, setDimensions] = useState(initial?.dimensions ?? "");
-  const [rate, setRate] = useState(String(initial?.ratePerHour ?? 0));
+  const [rate, setRate] = useState(String(initial?.ratePerSlot ?? 0));
   const [order, setOrder] = useState(String(initial?.order ?? 0));
   const [description, setDescription] = useState(initial?.description ?? "");
   const [imageUrl, setImageUrl] = useState(initial?.imageUrl ?? "");
@@ -51,7 +51,7 @@ export default function PitchFormModal({
     setName(initial?.name ?? "");
     setSport(initial?.sport ?? "Football");
     setDimensions(initial?.dimensions ?? "");
-    setRate(String(initial?.ratePerHour ?? 0));
+    setRate(String(initial?.ratePerSlot ?? 0));
     setOrder(String(initial?.order ?? 0));
     setDescription(initial?.description ?? "");
     setImageUrl(initial?.imageUrl ?? "");
@@ -100,7 +100,7 @@ export default function PitchFormModal({
         dimensions: dimensions.trim(),
         description: description.trim(),
         imageUrl: uploadedUrl ?? "",
-        ratePerHour: Number(rate),
+        ratePerSlot: Number(rate),
         order: Number(order),
         active,
       };
@@ -190,7 +190,7 @@ export default function PitchFormModal({
             </label>
             <label className="block">
               <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-white/60">
-                Price/hr (BDT)
+                Price/slot (BDT)
               </span>
               <input
                 type="number"
@@ -281,7 +281,7 @@ export default function PitchFormModal({
             <span className="font-semibold text-neon">
               {formatBdt(Math.max(0, Math.round(Number(rate) || 0)))}
             </span>{" "}
-            per hour
+            per slot
           </div>
 
           {error && (

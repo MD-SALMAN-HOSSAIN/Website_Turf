@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
   const dimensions = typeof body.dimensions === "string" ? body.dimensions.trim() : "";
   const description = typeof body.description === "string" ? body.description.trim() : "";
   const imageUrl = typeof body.imageUrl === "string" ? body.imageUrl.trim() : "";
-  const rate = Number(body.ratePerHour);
+  const rate = Number(body.ratePerSlot ?? body.ratePerHour);
   const order = Number.isFinite(Number(body.order)) ? Math.round(Number(body.order)) : 0;
 
   if (name.length < 2) {
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
       dimensions: dimensions.slice(0, 80),
       description: description ? description.slice(0, 400) : null,
       imageUrl: imageUrl || null,
-      ratePerHour: Math.round(rate),
+      ratePerSlot: Math.round(rate),
       order,
       active: body.active !== false,
     },
@@ -120,7 +120,7 @@ export async function PUT(request: NextRequest) {
     dimensions?: string;
     description?: string | null;
     imageUrl?: string | null;
-    ratePerHour?: number;
+    ratePerSlot?: number;
     order?: number;
     active?: boolean;
   } = {};
@@ -141,12 +141,12 @@ export async function PUT(request: NextRequest) {
   if (typeof body.imageUrl === "string") {
     data.imageUrl = body.imageUrl.trim() || null;
   }
-  if (body.ratePerHour !== undefined) {
-    const rate = Number(body.ratePerHour);
+  if (body.ratePerSlot !== undefined || body.ratePerHour !== undefined) {
+    const rate = Number(body.ratePerSlot ?? body.ratePerHour);
     if (!Number.isFinite(rate) || rate < 0) {
       return NextResponse.json({ error: "Price must be zero or more." }, { status: 422 });
     }
-    data.ratePerHour = Math.round(rate);
+    data.ratePerSlot = Math.round(rate);
   }
   if (body.order !== undefined && Number.isFinite(Number(body.order))) {
     data.order = Math.round(Number(body.order));

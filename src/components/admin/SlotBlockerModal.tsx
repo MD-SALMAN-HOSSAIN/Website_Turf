@@ -214,14 +214,14 @@ export default function SlotBlockerModal({
 
           <div>
             <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-white/60">
-              Override rate (BDT/hr)
+              Override rate (BDT/slot)
             </label>
             <input
               type="number"
               min={0}
               value={rateOverride}
               onChange={(event) => setRateOverride(event.target.value)}
-              placeholder="Leave empty to keep pitch rate"
+              placeholder="Leave empty to keep pitch slot rate"
               className="w-full rounded-xl bg-surface-raised px-4 py-2.5 text-sm text-white ring-1 ring-white/10 outline-none transition focus:ring-neon/60"
             />
           </div>

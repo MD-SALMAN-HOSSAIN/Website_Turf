@@ -1,4 +1,5 @@
 import Link from "next/link";
+import BookingHistoryTable from "@/components/admin/BookingHistoryTable";
 import { db } from "@/lib/db";
 import {
   DEFAULT_CLOSING,
@@ -23,21 +24,21 @@ export default async function AdminDashboardPage() {
     todaySchedule,
     config,
   ] = await Promise.all([
-    db.booking.count(),
+    db.booking.count({ where: { deletedAt: null } }),
     db.pitch.count({ where: { active: true } }),
     db.booking.findMany({
-      where: { date: today, status: "CONFIRMED" },
+      where: { date: today, status: "CONFIRMED", deletedAt: null },
       include: { pitch: true },
       orderBy: { startTime: "asc" },
     }),
-    db.booking.count({ where: { status: "PENDING" } }),
-    db.booking.count({ where: { date: today, status: "CANCELLED" } }),
+    db.booking.count({ where: { status: "PENDING", deletedAt: null } }),
+    db.booking.count({ where: { date: today, status: "CANCELLED", deletedAt: null } }),
     db.booking.findMany({
-      where: { date: { startsWith: monthPrefix } },
+      where: { date: { startsWith: monthPrefix }, deletedAt: null },
       select: { amount: true, status: true },
     }),
     db.booking.findMany({
-      where: { date: today },
+      where: { date: today, deletedAt: null },
       include: { pitch: true },
       orderBy: { startTime: "asc" },
       take: 20,
@@ -196,6 +197,8 @@ export default async function AdminDashboardPage() {
           </div>
         )}
       </div>
+
+      <BookingHistoryTable />
     </div>
   );
 }

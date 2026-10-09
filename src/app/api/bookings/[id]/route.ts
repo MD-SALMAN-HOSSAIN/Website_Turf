@@ -64,6 +64,9 @@ export async function DELETE(
     return NextResponse.json({ error: "Booking not found." }, { status: 404 });
   }
 
-  await db.booking.delete({ where: { id: params.id } });
+  await db.booking.update({
+    where: { id: params.id },
+    data: { deletedAt: existing.deletedAt ?? new Date() },
+  });
   return NextResponse.json({ ok: true });
 }

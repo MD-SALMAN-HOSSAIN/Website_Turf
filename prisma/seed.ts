@@ -9,7 +9,7 @@ const pitches = [
     name: "FIFA 7-a-side",
     sport: "Football",
     dimensions: "60m × 40m",
-    ratePerHour: 1200,
+    ratePerSlot: 1800,
     imageUrl: "/images/pitches/fifa-7.jpg",
     description:
       "FIFA-standard artificial turf with floodlights, ideal for competitive 7-a-side matches.",
@@ -20,7 +20,7 @@ const pitches = [
     name: "Swimming Pool",
     sport: "Swimming",
     dimensions: "25m × 12m",
-    ratePerHour: 900,
+    ratePerSlot: 1800,
     imageUrl: "/images/pitches/swimming-pool.jpg",
     description:
       "Lanes open 6:00 AM to 10:00 PM in 2-hour sessions with changing rooms and showers.",

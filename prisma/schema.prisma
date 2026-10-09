@@ -28,7 +28,7 @@ model Pitch {
   name         String
   sport        String
   dimensions   String
-  ratePerHour  Int
+  ratePerSlot  Int            @map("ratePerHour")
   imageUrl     String?
   description  String?
   order        Int            @default(0)
@@ -55,6 +55,7 @@ model Booking {
   amount        Int
   notes         String?
   manual        Boolean       @default(false)
+  deletedAt     DateTime?
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
@@ -63,6 +64,7 @@ model Booking {
   @@index([nid])
   @@index([status])
   @@index([createdAt])
+  @@index([deletedAt])
 }
 
 model SlotOverride {

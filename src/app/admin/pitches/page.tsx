@@ -199,8 +199,8 @@ export default function AdminCourtsPage() {
                   <div className="flex items-start justify-between gap-2">
                     <h2 className="font-display text-base font-semibold">{pitch.name}</h2>
                     <span className="shrink-0 font-display text-sm font-bold text-neon">
-                      {formatBdt(pitch.ratePerHour)}
-                      <span className="text-[11px] font-medium text-white/50">/hr</span>
+                      {formatBdt(pitch.ratePerSlot)}
+                      <span className="text-[11px] font-medium text-white/50">/slot</span>
                     </span>
                   </div>
                   <p className="mt-0.5 text-xs text-white/50">

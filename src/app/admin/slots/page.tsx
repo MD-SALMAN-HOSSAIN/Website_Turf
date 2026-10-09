@@ -119,7 +119,7 @@ export default function AdminSlotsPage() {
               <div className="flex items-center gap-3">
                 {override.rateOverride != null && (
                   <span className="text-sm font-semibold text-neon">
-                    ৳{override.rateOverride.toLocaleString()}/hr
+                    ৳{override.rateOverride.toLocaleString()}/slot
                   </span>
                 )}
                 <button

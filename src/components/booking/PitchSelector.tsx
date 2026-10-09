@@ -79,8 +79,8 @@ export default function PitchSelector({
                 <div className="flex items-start justify-between gap-2">
                   <h3 className="font-display text-base font-semibold">{pitch.name}</h3>
                   <span className="shrink-0 font-display text-base font-bold text-neon">
-                    {formatBdt(pitch.ratePerHour)}
-                    <span className="text-xs font-medium text-white/50">/hr</span>
+                    {formatBdt(pitch.ratePerSlot)}
+                    <span className="text-xs font-medium text-white/50">/slot</span>
                   </span>
                 </div>
                 <p className="mt-1 text-xs text-white/50">{pitch.dimensions}</p>

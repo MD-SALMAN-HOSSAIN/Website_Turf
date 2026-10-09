@@ -9,7 +9,7 @@ export interface Pitch {
   name: string;
   sport: string;
   dimensions: string;
-  ratePerHour: number;
+  ratePerSlot: number;
   imageUrl: string | null;
   description: string | null;
   order: number;
@@ -34,6 +34,7 @@ export interface Booking {
   amount: number;
   notes: string | null;
   manual: boolean;
+  deletedAt: string | null;
   createdAt: string;
 }
 

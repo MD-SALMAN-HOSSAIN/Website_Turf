@@ -49,6 +49,7 @@ function serialize(
     amount: booking.amount,
     notes: booking.notes,
     manual: booking.manual,
+    deletedAt: booking.deletedAt ? booking.deletedAt.toISOString() : null,
     createdAt: booking.createdAt.toISOString(),
   };
 }
@@ -70,7 +71,7 @@ export async function GET(request: NextRequest) {
   const nid = searchParams.get("nid");
 
   if (code || phone || nid) {
-    const where: Record<string, unknown> = {};
+    const where: Record<string, unknown> = { deletedAt: null };
     if (code) where.code = code.trim().toUpperCase();
     if (phone) where.phone = normalizePhone(phone);
     if (nid) where.nid = normalizeNid(nid);
@@ -101,8 +102,10 @@ export async function GET(request: NextRequest) {
   const status = searchParams.get("status");
   const date = searchParams.get("date");
   const q = searchParams.get("q")?.trim();
+  const includeDeleted = searchParams.get("includeDeleted") === "1";
 
   const where: Record<string, unknown> = {};
+  if (!includeDeleted) where.deletedAt = null;
   if (status && (STATUSES as readonly string[]).includes(status)) {
     where.status = status;
   }
@@ -111,8 +114,10 @@ export async function GET(request: NextRequest) {
     where.OR = [
       { name: { contains: q, mode: "insensitive" } },
       { phone: { contains: q } },
+      { nid: { contains: q } },
       { code: { contains: q, mode: "insensitive" } },
       { teamName: { contains: q, mode: "insensitive" } },
+      { pitch: { name: { contains: q, mode: "insensitive" } } },
     ];
   }
 
@@ -120,7 +125,7 @@ export async function GET(request: NextRequest) {
     where,
     include: { pitch: true },
     orderBy: { createdAt: "desc" },
-    take: 300,
+    take: 500,
   });
 
   return NextResponse.json({ bookings: bookings.map(serialize) });
@@ -271,6 +276,7 @@ export async function POST(request: NextRequest) {
       pitchId: pitch.id,
       date,
       status: { in: ["PENDING", "CONFIRMED"] },
+      deletedAt: null,
     },
   });
 
@@ -311,7 +317,8 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const hours = rangeMinutes(bounds.startTime, bounds.endTime, slotConfig.opening) / 60;
+  const slotCount =
+    rangeMinutes(bounds.startTime, bounds.endTime, slotConfig.opening) / slotConfig.slotMinutes;
   const rateOverrides = await db.slotOverride.findMany({
     where: { pitchId: pitch.id, date, rateOverride: { not: null } },
   });
@@ -324,7 +331,7 @@ export async function POST(request: NextRequest) {
       slotConfig.opening
     )
   );
-  const amount = Math.round((customRate?.rateOverride ?? pitch.ratePerHour) * hours);
+  const amount = Math.round((customRate?.rateOverride ?? pitch.ratePerSlot) * slotCount);
 
   let booking: BookingModel | null = null;
   for (let attempt = 0; attempt < 6 && !booking; attempt++) {
