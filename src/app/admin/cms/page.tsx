@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import SettingsForm from "@/components/admin/SettingsForm";
+import HeroVideoForm from "@/components/admin/HeroVideoForm";
 
 export default function AdminCmsPage() {
   const [toast, setToast] = useState<string | null>(null);
@@ -20,6 +21,13 @@ export default function AdminCmsPage() {
           {toast}
         </div>
       )}
+
+      <HeroVideoForm
+        onSaved={(message) => {
+          setToast(message);
+          setTimeout(() => setToast(null), 3000);
+        }}
+      />
 
       <SettingsForm
         onSaved={(message) => {

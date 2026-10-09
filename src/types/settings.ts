@@ -12,6 +12,7 @@ export interface SiteConfig {
   closingTime: string;
   mapsUrl: string | null;
   facebookUrl: string | null;
+  heroVideoUrl: string | null;
 }
 
 export interface NoticeBarData {

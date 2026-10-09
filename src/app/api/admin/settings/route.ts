@@ -19,6 +19,7 @@ const DEFAULT_CONFIG: Omit<SiteConfig, "id"> = {
   closingTime: "23:00",
   mapsUrl: null,
   facebookUrl: null,
+  heroVideoUrl: null,
 };
 
 async function getAdminSession() {
@@ -73,6 +74,7 @@ export async function PUT(request: NextRequest) {
     closingTime: body.closingTime!,
     mapsUrl: body.mapsUrl?.trim() || null,
     facebookUrl: body.facebookUrl?.trim() || null,
+    heroVideoUrl: body.heroVideoUrl?.trim() || null,
   };
 
   const config = await db.siteConfig.upsert({

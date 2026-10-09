@@ -97,6 +97,7 @@ model SiteConfig {
   closingTime    String   @default("23:00")
   mapsUrl        String?
   facebookUrl    String?
+  heroVideoUrl   String?
   updatedAt      DateTime @updatedAt
 }
 

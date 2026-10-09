@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import NoticeBar from "@/components/layout/NoticeBar";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import { SiteConfigProvider } from "@/components/layout/SiteConfigProvider";
 import type { FooterData } from "@/types/settings";
 
 export const dynamic = "force-dynamic";
@@ -18,6 +19,7 @@ const FALLBACK_CONFIG = {
   closingTime: "23:00",
   mapsUrl: null,
   facebookUrl: null,
+  heroVideoUrl: null,
 };
 
 async function getConfig() {
@@ -49,11 +51,11 @@ export default async function SiteLayout({
   };
 
   return (
-    <>
+    <SiteConfigProvider heroVideoUrl={config.heroVideoUrl}>
       <NoticeBar text={config.noticeText} enabled={config.noticeEnabled} />
       <Header siteName={config.siteName} />
       <main className="flex-1">{children}</main>
       <Footer {...footerData} />
-    </>
+    </SiteConfigProvider>
   );
 }
