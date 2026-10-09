@@ -5,6 +5,7 @@ import type { FormEvent } from "react";
 import Link from "next/link";
 import { formatBdt, formatDateLong, formatHourRange, maskNid, maskPhone } from "@/lib/utils";
 import { normalizeNid, normalizePhone } from "@/lib/nid-validator";
+import CancelBookingButton from "@/components/booking/CancelBookingButton";
 import type { Booking } from "@/types/booking";
 
 const STATUS_STYLE: Record<string, string> = {
@@ -145,6 +146,16 @@ export default function TrackPage() {
                 >
                   View voucher →
                 </Link>
+                <div className="mt-2">
+                  <CancelBookingButton
+                    booking={booking}
+                    onCancelled={(updated) =>
+                      setBookings((prev) =>
+                        prev ? prev.map((item) => (item.id === updated.id ? updated : item)) : prev
+                      )
+                    }
+                  />
+                </div>
               </div>
             </div>
           ))}

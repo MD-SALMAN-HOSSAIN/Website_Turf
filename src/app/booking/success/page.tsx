@@ -4,6 +4,7 @@ import { Suspense, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { formatBdt, formatDateLong, formatHourRange, maskNid, maskPhone } from "@/lib/utils";
+import CancelBookingButton from "@/components/booking/CancelBookingButton";
 import type { Booking } from "@/types/booking";
 
 const STATUS_BADGE: Record<string, string> = {
@@ -162,6 +163,10 @@ function SuccessContent() {
         >
           Back to home
         </Link>
+      </div>
+
+      <div className="no-print mt-4 flex justify-center">
+        <CancelBookingButton booking={booking} onCancelled={(updated) => setBooking(updated)} />
       </div>
     </div>
   );

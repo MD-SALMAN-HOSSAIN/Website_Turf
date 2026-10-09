@@ -4,8 +4,23 @@
 
 :root {
   --neon: #b4ff39;
-  --charcoal: #0c0f0c;
-  --surface: #151a14;
+  --c-white: 255 255 255;
+  --c-bg: 12 15 12;
+  --c-bg-light: 18 22 15;
+  --c-bg-deep: 7 9 7;
+  --c-surface: 21 26 20;
+  --c-surface-raised: 28 34 26;
+  --c-surface-overlay: 35 42 33;
+}
+
+html.light {
+  --c-white: 17 24 17;
+  --c-bg: 245 248 245;
+  --c-bg-light: 237 242 237;
+  --c-bg-deep: 233 238 233;
+  --c-surface: 255 255 255;
+  --c-surface-raised: 241 245 241;
+  --c-surface-overlay: 231 237 231;
 }
 
 html {
@@ -62,6 +77,45 @@ body {
   .surface-card {
     @apply bg-surface rounded-2xl ring-1 ring-white/10;
   }
+}
+
+/* Light-mode palette adjustments (unlayered, so they win over utilities). */
+html.light .text-charcoal {
+  color: #0c0f0c;
+}
+
+html.light .text-neon,
+html.light .hover\:text-neon:hover {
+  color: #3f7d06;
+}
+
+html.light .text-glow {
+  text-shadow: none;
+}
+
+html.light .glow-ring {
+  box-shadow: 0 0 0 1px rgba(77, 138, 10, 0.45);
+}
+
+html.light .text-red-300,
+html.light .hover\:text-red-300:hover {
+  color: #b91c1c;
+}
+
+html.light .text-red-400 {
+  color: #dc2626;
+}
+
+html.light ::-webkit-scrollbar-track {
+  background: #edf1ed;
+}
+
+html.light ::-webkit-scrollbar-thumb {
+  background: #c2ccc1;
+}
+
+html.light ::-webkit-scrollbar-thumb:hover {
+  background: #a6b2a5;
 }
 
 @media print {

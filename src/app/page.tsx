@@ -7,7 +7,10 @@ import DateStripPicker from "@/components/booking/DateStripPicker";
 import SlotGrid from "@/components/booking/SlotGrid";
 import FloatingBookingBar from "@/components/booking/FloatingBookingBar";
 import BookingModal from "@/components/booking/BookingModal";
+import HeroVideo from "@/components/media/HeroVideo";
+import FacilityGallery from "@/components/media/FacilityGallery";
 import { addDaysIso, todayIso } from "@/lib/utils";
+import { isFootballSport } from "@/lib/slot-calculator";
 import type { AvailabilityResponse, TimeSlot } from "@/types/booking";
 
 export default function HomePage() {
@@ -57,13 +60,21 @@ export default function HomePage() {
   const selectedPitch = data?.pitches.find((pitch) => pitch.slug === selectedSlug) ?? data?.pitch ?? null;
   const total = useMemo(() => selected.reduce((sum, slot) => sum + slot.price, 0), [selected]);
 
-  const toggleSlot = useCallback((slot: TimeSlot) => {
-    setSelected((prev) => {
-      const exists = prev.some((item) => item.id === slot.id);
-      if (exists) return prev.filter((item) => item.id !== slot.id);
-      return [...prev, slot].sort((a, b) => a.startTime.localeCompare(b.startTime));
-    });
-  }, []);
+  const toggleSlot = useCallback(
+    (slot: TimeSlot) => {
+      const football = isFootballSport(data?.pitch?.sport ?? "");
+      setSelected((prev) => {
+        if (football) {
+          const exists = prev.some((item) => item.id === slot.id);
+          return exists ? [] : [slot];
+        }
+        const exists = prev.some((item) => item.id === slot.id);
+        if (exists) return prev.filter((item) => item.id !== slot.id);
+        return [...prev, slot].sort((a, b) => a.startTime.localeCompare(b.startTime));
+      });
+    },
+    [data?.pitch?.sport]
+  );
 
   const handleSuccess = useCallback(
     (code: string) => {
@@ -74,6 +85,8 @@ export default function HomePage() {
 
   return (
     <>
+      <HeroVideo />
+
       <section className="relative overflow-hidden">
         <div className="pointer-events-none absolute -top-32 left-1/2 h-96 w-[42rem] -translate-x-1/2 rounded-full bg-neon/10 blur-3xl" />
         <div className="mx-auto max-w-6xl px-4 pb-10 pt-16 text-center sm:pt-20">
@@ -86,14 +99,16 @@ export default function HomePage() {
             <span className="text-glow text-neon">Play your game.</span>
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-white/60 sm:text-base">
-            {data?.pitch.name ?? "TurfHub"} — FIFA 7-a-side, futsal, and box
-            cricket arenas with floodlights, changing rooms, and free parking.
+            {data?.pitch.name ?? "TurfHub"} — FIFA 7-a-side turf and a 25m
+            swimming pool with floodlights, changing rooms, and free parking.
             Reserve a slot in seconds.
           </p>
           <div className="mt-6 flex justify-center gap-8 text-sm">
             <div>
-              <p className="font-display text-lg font-bold text-neon">3</p>
-              <p className="text-xs text-white/50">Pitches</p>
+              <p className="font-display text-lg font-bold text-neon">
+                {data?.pitches.length ?? 2}
+              </p>
+              <p className="text-xs text-white/50">Facilities</p>
             </div>
             <div className="w-px bg-white/10" />
             <div>
@@ -130,10 +145,13 @@ export default function HomePage() {
         </div>
       </section>
 
+      <FacilityGallery />
+
       {selected.length > 0 && (
         <FloatingBookingBar
           pitchName={data?.pitch.name ?? ""}
           date={date}
+          opening={data?.opening}
           slots={selected}
           onClear={() => setSelected([])}
           onBook={() => setModalOpen(true)}

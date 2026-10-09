@@ -79,6 +79,12 @@ export default async function RootLayout({
   return (
     <html lang="en" className={`${outfit.variable} ${jakarta.variable}`}>
       <body className="flex min-h-screen flex-col bg-charcoal">
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              'try{if(localStorage.getItem("theme")==="light"){document.documentElement.classList.add("light");}}catch(e){}',
+          }}
+        />
         <NoticeBar text={config.noticeText} enabled={config.noticeEnabled} />
         <Header siteName={config.siteName} />
         <main className="flex-1">{children}</main>

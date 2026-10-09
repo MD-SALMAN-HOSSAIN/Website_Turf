@@ -1,6 +1,6 @@
 # Website Turf
 
-A modern turf booking and sports ground website designed to help users discover, compare, and reserve premium turf spaces for football, cricket, and other outdoor activities.
+A modern turf booking and sports ground website designed to help users discover, compare, and reserve premium turf spaces for football, swimming, and other outdoor activities.
 
 ## About This Website
 

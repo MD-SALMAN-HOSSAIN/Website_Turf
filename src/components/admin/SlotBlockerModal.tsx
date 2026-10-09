@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
-import { buildTimeOptions, DEFAULT_CLOSING, DEFAULT_OPENING } from "@/lib/slot-calculator";
+import { buildTimeOptions, DEFAULT_CLOSING, DEFAULT_OPENING, getPitchSlotConfig } from "@/lib/slot-calculator";
 import type { Pitch, SlotOverride } from "@/types/booking";
 
 interface SlotBlockerModalProps {
@@ -34,9 +34,22 @@ export default function SlotBlockerModal({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  if (!open) return null;
+  const selectedPitch = pitches.find((pitch) => pitch.id === pitchId) ?? pitches[0];
+  const slotConfig = getPitchSlotConfig(
+    selectedPitch ?? { sport: "" },
+    DEFAULT_OPENING,
+    DEFAULT_CLOSING
+  );
+  const timeOptions = buildTimeOptions(slotConfig);
 
-  const timeOptions = buildTimeOptions(DEFAULT_OPENING, DEFAULT_CLOSING);
+  useEffect(() => {
+    if (initial || !open) return;
+    setStartTime(slotConfig.opening);
+    setEndTime(timeOptions[1] ?? slotConfig.closing);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, pitchId, initial?.id]);
+
+  if (!open) return null;
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();

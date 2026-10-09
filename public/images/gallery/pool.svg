@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-label="Swimming pool">
+  <defs>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1fa9d6"/>
+      <stop offset="55%" stop-color="#1273a8"/>
+      <stop offset="100%" stop-color="#0b4a75"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#water)"/>
+  <g stroke="#ffffff" stroke-opacity="0.35" stroke-width="6" stroke-linecap="round">
+    <path d="M0 130 q150 -40 300 0 t300 0 t300 0 t300 0"/>
+    <path d="M0 210 q150 -40 300 0 t300 0 t300 0 t300 0"/>
+    <path d="M0 560 q150 -40 300 0 t300 0 t300 0 t300 0"/>
+  </g>
+  <g>
+    <rect x="80" y="300" width="1040" height="18" rx="9" fill="#ffffff" fill-opacity="0.85"/>
+    <rect x="80" y="380" width="1040" height="18" rx="9" fill="#ffffff" fill-opacity="0.85"/>
+    <rect x="80" y="460" width="1040" height="18" rx="9" fill="#ffffff" fill-opacity="0.85"/>
+    <g fill="#f4d03f">
+      <circle cx="240" cy="309" r="22"/><circle cx="480" cy="309" r="22"/><circle cx="720" cy="309" r="22"/><circle cx="960" cy="309" r="22"/>
+      <circle cx="360" cy="389" r="22"/><circle cx="600" cy="389" r="22"/><circle cx="840" cy="389" r="22"/>
+      <circle cx="240" cy="469" r="22"/><circle cx="480" cy="469" r="22"/><circle cx="720" cy="469" r="22"/><circle cx="960" cy="469" r="22"/>
+    </g>
+  </g>
+  <text x="600" y="620" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="44" font-weight="700" fill="#ffffff" fill-opacity="0.92">SWIMMING POOL</text>
+</svg>

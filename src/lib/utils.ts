@@ -45,6 +45,16 @@ export function addDaysIso(iso: string, days: number) {
   return new Date(date.getTime() - offset * 60000).toISOString().slice(0, 10);
 }
 
+export const CANCELLATION_WINDOW_HOURS = 16;
+
+export function slotStartDate(date: string, startTime: string) {
+  return new Date(`${date}T${startTime}:00`);
+}
+
+export function hoursUntilSlot(date: string, startTime: string) {
+  return (slotStartDate(date, startTime).getTime() - Date.now()) / (60 * 60 * 1000);
+}
+
 export function formatDateLong(iso: string) {
   return new Date(`${iso}T00:00:00`).toLocaleDateString("en-GB", {
     weekday: "long",

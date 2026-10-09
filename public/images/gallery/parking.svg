@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-label="Free parking">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8fb7d4"/>
+      <stop offset="100%" stop-color="#d7e4ec"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#sky)"/>
+  <rect x="0" y="380" width="1200" height="295" fill="#4a5158"/>
+  <g stroke="#ffffff" stroke-opacity="0.7" stroke-width="10" stroke-dasharray="46 40">
+    <line x1="0" y1="560" x2="1200" y2="560"/>
+  </g>
+  <g>
+    <rect x="180" y="410" width="360" height="110" rx="34" fill="#0c0f0c"/>
+    <rect x="240" y="360" width="230" height="80" rx="26" fill="#1b2a3a"/>
+    <circle cx="265" cy="525" r="42" fill="#20262b"/>
+    <circle cx="455" cy="525" r="42" fill="#20262b"/>
+    <circle cx="265" cy="525" r="18" fill="#9aa4ab"/>
+    <circle cx="455" cy="525" r="18" fill="#9aa4ab"/>
+  </g>
+  <g>
+    <rect x="880" y="120" width="16" height="300" fill="#33393e"/>
+    <rect x="800" y="40" width="176" height="176" rx="20" fill="#1f6feb"/>
+    <text x="888" y="168" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="120" font-weight="700" fill="#ffffff">P</text>
+  </g>
+  <text x="600" y="640" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="700" fill="#ffffff">FREE PARKING</text>
+</svg>

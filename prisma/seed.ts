@@ -16,28 +16,19 @@ const pitches = [
     order: 1,
   },
   {
-    slug: "futsal",
-    name: "Futsal Court",
-    sport: "Futsal",
-    dimensions: "40m × 20m",
+    slug: "swimming-pool",
+    name: "Swimming Pool",
+    sport: "Swimming",
+    dimensions: "25m × 12m",
     ratePerHour: 900,
-    imageUrl: "/images/pitches/futsal.jpg",
+    imageUrl: "/images/pitches/swimming-pool.jpg",
     description:
-      "Indoor-style hard court with rebound boards for fast five-a-side futsal games.",
+      "Lanes open 6:00 AM to 10:00 PM in 2-hour sessions with changing rooms and showers.",
     order: 2,
   },
-  {
-    slug: "box-cricket",
-    name: "Box Cricket",
-    sport: "Cricket",
-    dimensions: "30m × 15m",
-    ratePerHour: 1000,
-    imageUrl: "/images/pitches/box-cricket.jpg",
-    description:
-      "Enclosed netted arena for box cricket sessions, corporate events, and practice drills.",
-    order: 3,
-  },
 ];
+
+const LEGACY_SLUGS = ["futsal", "box-cricket"];
 
 async function main() {
   for (const pitch of pitches) {
@@ -47,6 +38,11 @@ async function main() {
       create: pitch,
     });
   }
+
+  await prisma.pitch.updateMany({
+    where: { slug: { in: LEGACY_SLUGS } },
+    data: { active: false },
+  });
 
   await prisma.siteConfig.upsert({
     where: { id: "singleton" },

@@ -6,10 +6,13 @@ import {
   DEFAULT_CLOSING,
   DEFAULT_OPENING,
   generateSlotRanges,
+  getPitchSlotConfig,
   isContiguous,
+  isFootballSport,
   overlaps,
+  rangeMinutes,
   selectRangeBounds,
-  toMinutes,
+  toWindowMinutes,
 } from "@/lib/slot-calculator";
 import { normalizeNid, normalizePhone, validateNid, validatePhone } from "@/lib/nid-validator";
 import type { Booking, PaymentMethod } from "@/types/booking";
@@ -188,7 +191,13 @@ export async function POST(request: NextRequest) {
           typeof (slot as { endTime?: unknown }).endTime === "string"
       )
       .map((slot) => ({ startTime: slot.startTime, endTime: slot.endTime }));
-    if (slots.length === 0 || !isContiguous(slots)) {
+    if (slots.length === 0) {
+      errors.slots = "Selected slots must be consecutive.";
+    } else if (isFootballSport(pitch.sport)) {
+      if (slots.length > 1) {
+        errors.slots = "Book football matches one slot at a time.";
+      }
+    } else if (!isContiguous(slots)) {
       errors.slots = "Selected slots must be consecutive.";
     }
   } else if (
@@ -200,9 +209,19 @@ export async function POST(request: NextRequest) {
     errors.slots = "Select at least one slot.";
   }
 
-  if (slots.length > 0 && !errors.slots) {
-    const { startTime, endTime } = selectRangeBounds(slots);
-    if (toMinutes(endTime) <= toMinutes(startTime)) {
+  const siteConfig = await db.siteConfig.findUnique({ where: { id: "singleton" } });
+  const slotConfig = getPitchSlotConfig(
+    pitch,
+    siteConfig?.openingTime ?? DEFAULT_OPENING,
+    siteConfig?.closingTime ?? DEFAULT_CLOSING
+  );
+
+  const bounds = slots.length > 0 ? selectRangeBounds(slots, slotConfig.opening) : null;
+
+  if (bounds && !errors.slots) {
+    const start = toWindowMinutes(bounds.startTime, slotConfig.opening);
+    const end = toWindowMinutes(bounds.endTime, slotConfig.opening);
+    if (end <= start) {
       errors.slots = "End time must be after start time.";
     }
   }
@@ -214,15 +233,33 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const config = await db.siteConfig.findUnique({ where: { id: "singleton" } });
-  const opening = config?.openingTime ?? DEFAULT_OPENING;
-  const closing = config?.closingTime ?? DEFAULT_CLOSING;
-  const validRanges = generateSlotRanges(opening, closing);
-  const validStarts = new Set(validRanges.map((range) => range.startTime));
-  const validEnds = new Set(validRanges.map((range) => range.endTime).concat(closing));
+  if (!bounds) {
+    return NextResponse.json(
+      { error: "Select at least one slot.", details: { slots: "Pick a valid slot." } },
+      { status: 422 }
+    );
+  }
 
-  const bounds = selectRangeBounds(slots);
-  if (!validStarts.has(bounds.startTime) || !validEnds.has(bounds.endTime)) {
+  const validRanges = generateSlotRanges(
+    slotConfig.opening,
+    slotConfig.closing,
+    slotConfig.slotMinutes,
+    slotConfig.gapMinutes
+  );
+  const validStarts = new Set(validRanges.map((range) => range.startTime));
+  const validEnds = new Set(validRanges.map((range) => range.endTime).concat(slotConfig.closing));
+
+  if (isFootballSport(pitch.sport)) {
+    const exactlyOneSlot = validRanges.some(
+      (range) => range.startTime === bounds.startTime && range.endTime === bounds.endTime
+    );
+    if (!exactlyOneSlot) {
+      return NextResponse.json(
+        { error: "Selected time is outside operating hours.", details: { slots: "Pick a valid slot." } },
+        { status: 422 }
+      );
+    }
+  } else if (!validStarts.has(bounds.startTime) || !validEnds.has(bounds.endTime)) {
     return NextResponse.json(
       { error: "Selected time is outside operating hours.", details: { slots: "Pick a valid slot." } },
       { status: 422 }
@@ -238,7 +275,13 @@ export async function POST(request: NextRequest) {
   });
 
   const clash = existingBookings.find((booking) =>
-    overlaps(bounds.startTime, bounds.endTime, booking.startTime, booking.endTime)
+    overlaps(
+      bounds.startTime,
+      bounds.endTime,
+      booking.startTime,
+      booking.endTime,
+      slotConfig.opening
+    )
   );
   if (clash) {
     return NextResponse.json(
@@ -253,7 +296,13 @@ export async function POST(request: NextRequest) {
     where: { pitchId: pitch.id, date, isBlocked: true },
   });
   const blocked = overrides.find((override) =>
-    overlaps(bounds.startTime, bounds.endTime, override.startTime, override.endTime)
+    overlaps(
+      bounds.startTime,
+      bounds.endTime,
+      override.startTime,
+      override.endTime,
+      slotConfig.opening
+    )
   );
   if (blocked) {
     return NextResponse.json(
@@ -262,12 +311,18 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const hours = (toMinutes(bounds.endTime) - toMinutes(bounds.startTime)) / 60;
+  const hours = rangeMinutes(bounds.startTime, bounds.endTime, slotConfig.opening) / 60;
   const rateOverrides = await db.slotOverride.findMany({
     where: { pitchId: pitch.id, date, rateOverride: { not: null } },
   });
   const customRate = rateOverrides.find((override) =>
-    overlaps(bounds.startTime, bounds.endTime, override.startTime, override.endTime)
+    overlaps(
+      bounds.startTime,
+      bounds.endTime,
+      override.startTime,
+      override.endTime,
+      slotConfig.opening
+    )
   );
   const amount = Math.round((customRate?.rateOverride ?? pitch.ratePerHour) * hours);
 

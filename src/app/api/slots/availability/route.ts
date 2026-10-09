@@ -6,7 +6,9 @@ import {
   buildPeriodGroups,
   generateSlotRanges,
   getPeriod,
+  getPitchSlotConfig,
   overlaps,
+  type SlotConfig,
 } from "@/lib/slot-calculator";
 import { todayIso } from "@/lib/utils";
 import type { AvailabilityResponse, Pitch, TimeSlot } from "@/types/booking";
@@ -32,24 +34,40 @@ function serializePitch(pitch: PitchModel): Pitch {
 function buildSlots(
   pitch: PitchModel,
   date: string,
-  opening: string,
-  closing: string,
+  config: SlotConfig,
   bookings: Booking[],
   overrides: SlotOverride[]
 ): TimeSlot[] {
-  return generateSlotRanges(opening, closing).map((range) => {
+  return generateSlotRanges(
+    config.opening,
+    config.closing,
+    config.slotMinutes,
+    config.gapMinutes
+  ).map((range) => {
     const blockedOverride = overrides.find(
       (override) =>
         override.isBlocked &&
-        overlaps(range.startTime, range.endTime, override.startTime, override.endTime)
+        overlaps(
+          range.startTime,
+          range.endTime,
+          override.startTime,
+          override.endTime,
+          config.opening
+        )
     );
     const rateOverride = overrides.find(
       (override) =>
         override.rateOverride != null &&
-        overlaps(range.startTime, range.endTime, override.startTime, override.endTime)
+        overlaps(
+          range.startTime,
+          range.endTime,
+          override.startTime,
+          override.endTime,
+          config.opening
+        )
     );
     const booked = bookings.some((booking) =>
-      overlaps(range.startTime, range.endTime, booking.startTime, booking.endTime)
+      overlaps(range.startTime, range.endTime, booking.startTime, booking.endTime, config.opening)
     );
 
     let state: TimeSlot["state"] = "available";
@@ -62,7 +80,7 @@ function buildSlots(
       endTime: range.endTime,
       period: getPeriod(range.startTime),
       state,
-      price: rateOverride?.rateOverride ?? pitch.ratePerHour,
+      price: Math.round((rateOverride?.rateOverride ?? pitch.ratePerHour) * (config.slotMinutes / 60)),
       reason: blockedOverride?.reason ?? null,
     };
   });
@@ -94,10 +112,12 @@ async function handleGet(request: NextRequest) {
   const date =
     dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam) ? dateParam : todayIso();
 
-  const pitches = await db.pitch.findMany({
-    where: { active: true },
-    orderBy: { order: "asc" },
-  });
+  const pitches = (
+    await db.pitch.findMany({
+      where: { active: true },
+      orderBy: { order: "asc" },
+    })
+  ).filter((pitch) => pitch.sport.trim().toLowerCase() !== "cricket");
 
   if (pitches.length === 0) {
     return NextResponse.json(
@@ -111,9 +131,12 @@ async function handleGet(request: NextRequest) {
       ? pitches.find((p) => p.slug === pitchParam || p.id === pitchParam)
       : null) ?? pitches[0];
 
-  const config = await db.siteConfig.findUnique({ where: { id: "singleton" } });
-  const opening = config?.openingTime ?? DEFAULT_OPENING;
-  const closing = config?.closingTime ?? DEFAULT_CLOSING;
+  const siteConfig = await db.siteConfig.findUnique({ where: { id: "singleton" } });
+  const slotConfig = getPitchSlotConfig(
+    pitch,
+    siteConfig?.openingTime ?? DEFAULT_OPENING,
+    siteConfig?.closingTime ?? DEFAULT_CLOSING
+  );
 
   const [bookings, overrides] = await Promise.all([
     db.booking.findMany({
@@ -126,12 +149,12 @@ async function handleGet(request: NextRequest) {
     db.slotOverride.findMany({ where: { pitchId: pitch.id, date } }),
   ]);
 
-  const slots = buildSlots(pitch, date, opening, closing, bookings, overrides);
+  const slots = buildSlots(pitch, date, slotConfig, bookings, overrides);
 
   const payload: AvailabilityResponse = {
     date,
-    opening,
-    closing,
+    opening: slotConfig.opening,
+    closing: slotConfig.closing,
     pitch: serializePitch(pitch),
     pitches: pitches.map(serializePitch),
     slots,

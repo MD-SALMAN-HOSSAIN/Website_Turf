@@ -1,12 +1,13 @@
 "use client";
 
 import { cn, formatBdt, formatDateShort, formatHourRange } from "@/lib/utils";
-import { selectRangeBounds } from "@/lib/slot-calculator";
+import { rangeMinutes, selectRangeBounds } from "@/lib/slot-calculator";
 import type { TimeSlot } from "@/types/booking";
 
 interface FloatingBookingBarProps {
   pitchName: string;
   date: string;
+  opening?: string;
   slots: TimeSlot[];
   onClear: () => void;
   onBook: () => void;
@@ -15,15 +16,14 @@ interface FloatingBookingBarProps {
 export default function FloatingBookingBar({
   pitchName,
   date,
+  opening = "00:00",
   slots,
   onClear,
   onBook,
 }: FloatingBookingBarProps) {
-  const bounds = selectRangeBounds(slots);
+  const bounds = selectRangeBounds(slots, opening);
   const total = slots.reduce((sum, slot) => sum + slot.price, 0);
-  const hours = (Number(bounds.endTime.slice(0, 2)) * 60 +
-    Number(bounds.endTime.slice(3)) -
-    (Number(bounds.startTime.slice(0, 2)) * 60 + Number(bounds.startTime.slice(3)))) / 60;
+  const hours = rangeMinutes(bounds.startTime, bounds.endTime, opening) / 60;
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-40">

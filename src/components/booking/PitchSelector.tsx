@@ -55,10 +55,10 @@ export default function PitchSelector({
                 ) : (
                   <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-neon/20 via-surface-raised to-surface-raised">
                     <span className="text-4xl">
-                      {pitch.sport === "Football" || pitch.sport === "Futsal"
+                      {pitch.sport === "Football"
                         ? "⚽"
-                        : pitch.sport === "Cricket"
-                          ? "🏏"
+                        : pitch.sport === "Swimming"
+                          ? "🏊"
                           : "🏟️"}
                     </span>
                   </div>

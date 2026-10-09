@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-label="Facility tour">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#101710"/>
+      <stop offset="55%" stop-color="#0c0f0c"/>
+      <stop offset="100%" stop-color="#16240f"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="45%" r="55%">
+      <stop offset="0%" stop-color="#b4ff39" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#b4ff39" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <rect width="1600" height="900" fill="url(#glow)"/>
+  <g fill="none" stroke="#b4ff39" stroke-opacity="0.35" stroke-width="4">
+    <circle cx="800" cy="410" r="230"/>
+    <line x1="800" y1="180" x2="800" y2="640"/>
+    <rect x="480" y="290" width="640" height="240" rx="18"/>
+  </g>
+  <g transform="translate(800 410)">
+    <circle r="86" fill="#b4ff39"/>
+    <path d="M-34 30 v-60 l34 20 l34 -20 v60 l-34 20 z" fill="#0c0f0c"/>
+  </g>
+  <text x="800" y="740" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="64" font-weight="700" fill="#ffffff">Facility tour</text>
+  <text x="800" y="800" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#b4ff39">Pool · Turf · Floodlights</text>
+</svg>

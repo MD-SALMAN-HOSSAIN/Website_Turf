@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-label="Changing rooms">
+  <defs>
+    <linearGradient id="room" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e8ecef"/>
+      <stop offset="100%" stop-color="#b9c3c9"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#room)"/>
+  <rect x="0" y="520" width="1200" height="155" fill="#8b979e"/>
+  <g fill="#3d4a52">
+    <rect x="90" y="150" width="200" height="390" rx="10"/>
+    <rect x="330" y="150" width="200" height="390" rx="10"/>
+    <rect x="570" y="150" width="200" height="390" rx="10"/>
+    <rect x="810" y="150" width="200" height="390" rx="10"/>
+    <rect x="1050" y="150" width="60" height="390" rx="10"/>
+  </g>
+  <g fill="#b4ff39">
+    <circle cx="270" cy="350" r="9"/><circle cx="510" cy="350" r="9"/>
+    <circle cx="750" cy="350" r="9"/><circle cx="990" cy="350" r="9"/>
+  </g>
+  <g stroke="#ffffff" stroke-opacity="0.6" stroke-width="8" fill="none" stroke-linecap="round">
+    <path d="M150 60 v70 M150 60 h60"/>
+    <path d="M390 60 v70 M390 60 h60"/>
+    <path d="M630 60 v70 M630 60 h60"/>
+    <path d="M870 60 v70 M870 60 h60"/>
+  </g>
+  <text x="600" y="640" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="700" fill="#1f2a30">CHANGING ROOMS &amp; SHOWERS</text>
+</svg>

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
-import { buildTimeOptions, DEFAULT_CLOSING, DEFAULT_OPENING } from "@/lib/slot-calculator";
+import { buildTimeOptions, DEFAULT_CLOSING, DEFAULT_OPENING, getPitchSlotConfig } from "@/lib/slot-calculator";
 import { validateNid, validatePhone } from "@/lib/nid-validator";
 import type { PaymentMethod, Pitch } from "@/types/booking";
 
@@ -34,9 +34,22 @@ export default function ManualBookingModal({
   const [serverError, setServerError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  if (!open) return null;
+  const selectedPitch = pitches.find((pitch) => pitch.id === pitchId) ?? pitches[0];
+  const slotConfig = getPitchSlotConfig(
+    selectedPitch ?? { sport: "" },
+    DEFAULT_OPENING,
+    DEFAULT_CLOSING
+  );
+  const timeOptions = buildTimeOptions(slotConfig);
 
-  const timeOptions = buildTimeOptions(DEFAULT_OPENING, DEFAULT_CLOSING);
+  useEffect(() => {
+    if (!open) return;
+    setStartTime(slotConfig.opening);
+    setEndTime(timeOptions[1] ?? slotConfig.closing);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, pitchId]);
+
+  if (!open) return null;
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -80,8 +93,8 @@ export default function ManualBookingModal({
         return;
       }
       setPitchId(pitches[0]?.id ?? "");
-      setStartTime(DEFAULT_OPENING);
-      setEndTime("10:00");
+      setStartTime(slotConfig.opening);
+      setEndTime(timeOptions[1] ?? slotConfig.closing);
       setName("");
       setPhone("");
       setNid("");

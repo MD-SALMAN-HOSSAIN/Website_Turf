@@ -8,20 +8,21 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        white: "rgb(var(--c-white) / <alpha-value>)",
         neon: {
           DEFAULT: "#B4FF39",
           dim: "#8FD128",
           soft: "#E6FFB3",
         },
         charcoal: {
-          DEFAULT: "#0C0F0C",
-          light: "#12160F",
-          deep: "#070907",
+          DEFAULT: "rgb(var(--c-bg) / <alpha-value>)",
+          light: "rgb(var(--c-bg-light) / <alpha-value>)",
+          deep: "rgb(var(--c-bg-deep) / <alpha-value>)",
         },
         surface: {
-          DEFAULT: "#151A14",
-          raised: "#1C221A",
-          overlay: "#232A21",
+          DEFAULT: "rgb(var(--c-surface) / <alpha-value>)",
+          raised: "rgb(var(--c-surface-raised) / <alpha-value>)",
+          overlay: "rgb(var(--c-surface-overlay) / <alpha-value>)",
         },
       },
       fontFamily: {

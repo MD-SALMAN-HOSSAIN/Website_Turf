@@ -26,8 +26,8 @@ export default function Footer({
             <span className="font-display text-lg font-bold">{siteName}</span>
           </div>
           <p className="mt-3 text-sm text-white/50">
-            Premium pitches and courts for football, futsal, and cricket. Book
-            online in seconds.
+            Premium pitches and a swimming pool for football and family
+            sessions. Book online in seconds.
           </p>
         </div>
 

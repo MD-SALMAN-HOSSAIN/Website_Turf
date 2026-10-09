@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ThemeToggle from "./ThemeToggle";
 
 interface HeaderProps {
   siteName: string;
@@ -31,18 +32,21 @@ export default function Header({ siteName }: HeaderProps) {
           </Link>
         </nav>
 
-        <a
-          href="#book"
-          className="rounded-xl bg-neon px-4 py-2 text-sm font-semibold text-charcoal shadow-glow-sm transition hover:bg-neon-soft sm:hidden"
-        >
-          Book
-        </a>
-        <a
-          href="#book"
-          className="hidden rounded-xl bg-neon px-5 py-2.5 text-sm font-semibold text-charcoal shadow-glow-sm transition hover:bg-neon-soft sm:inline-block"
-        >
-          Book now
-        </a>
+        <div className="flex items-center gap-2 sm:gap-3">
+          <ThemeToggle />
+          <a
+            href="#book"
+            className="rounded-xl bg-neon px-4 py-2 text-sm font-semibold text-charcoal shadow-glow-sm transition hover:bg-neon-soft sm:hidden"
+          >
+            Book
+          </a>
+          <a
+            href="#book"
+            className="hidden rounded-xl bg-neon px-5 py-2.5 text-sm font-semibold text-charcoal shadow-glow-sm transition hover:bg-neon-soft sm:inline-block"
+          >
+            Book now
+          </a>
+        </div>
       </div>
     </header>
   );
