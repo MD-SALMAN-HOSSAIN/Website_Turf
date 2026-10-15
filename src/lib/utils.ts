@@ -78,3 +78,13 @@ export function relativeDayLabel(iso: string) {
   if (iso === addDaysIso(today, 1)) return "Tomorrow";
   return formatDateShort(iso);
 }
+
+export async function readJson<T = unknown>(response: Response): Promise<T | null> {
+  const text = await response.text();
+  if (!text) return null;
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    return null;
+  }
+}

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
-import { formatBdt } from "@/lib/utils";
+import { formatBdt, readJson } from "@/lib/utils";
 import type { Pitch } from "@/types/booking";
 
 interface PitchFormModalProps {
@@ -81,9 +81,14 @@ export default function PitchFormModal({
     const body = new FormData();
     body.append("file", file);
     const response = await fetch("/api/admin/upload", { method: "POST", body });
-    const json = await response.json();
+    const json = await readJson<{ url?: string; error?: string }>(response);
     if (!response.ok) {
-      throw new Error((json as { error?: string }).error ?? "Could not upload the image.");
+      throw new Error(
+        json?.error ??
+          (response.status === 413
+            ? "That image is too large to upload. Please use one under 4 MB."
+            : "Could not upload the image.")
+      );
     }
     return (json as { url: string }).url;
   }
@@ -262,7 +267,7 @@ export default function PitchFormModal({
               </div>
             </div>
             <p className="mt-1 text-[11px] text-white/40">
-              Upload a photo (max 5 MB) or paste a link. Square/landscape images look best.
+              Upload a photo (max 4 MB) or paste a link. Square/landscape images look best.
             </p>
           </div>
 

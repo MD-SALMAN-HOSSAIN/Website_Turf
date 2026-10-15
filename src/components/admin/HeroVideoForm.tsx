@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
+import { upload } from "@vercel/blob/client";
+import { readJson } from "@/lib/utils";
 
 const MAX_BYTES = 200 * 1024 * 1024;
 
@@ -14,6 +16,7 @@ export default function HeroVideoForm({ onSaved }: HeroVideoFormProps) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [removing, setRemoving] = useState(false);
+  const [progress, setProgress] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
@@ -58,15 +61,26 @@ export default function HeroVideoForm({ onSaved }: HeroVideoFormProps) {
     if (!file) return;
     setSaving(true);
     setError(null);
+    setProgress(0);
     try {
-      const body = new FormData();
-      body.append("file", file);
-      const response = await fetch("/api/admin/hero-video", { method: "POST", body });
-      const json = await response.json();
+      const blob = await upload(`hero/${Date.now()}-${file.name}`, file, {
+        access: "public",
+        handleUploadUrl: "/api/admin/hero-video/upload",
+        contentType: file.type,
+        multipart: true,
+        onUploadProgress: (event) => setProgress(Math.round(event.percentage)),
+      });
+
+      const response = await fetch("/api/admin/hero-video", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: blob.url }),
+      });
+      const json = await readJson<{ url?: string; error?: string }>(response);
       if (!response.ok) {
-        throw new Error((json as { error?: string }).error ?? "Could not upload the video.");
+        throw new Error(json?.error ?? "Could not upload the video.");
       }
-      setUrl((json as { url: string | null }).url);
+      setUrl(json?.url ?? blob.url);
       setFile(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
       onSaved?.("Hero video updated.");
@@ -74,6 +88,7 @@ export default function HeroVideoForm({ onSaved }: HeroVideoFormProps) {
       setError(err instanceof Error ? err.message : "Could not upload the video.");
     } finally {
       setSaving(false);
+      setProgress(null);
     }
   }
 
@@ -82,12 +97,14 @@ export default function HeroVideoForm({ onSaved }: HeroVideoFormProps) {
     setRemoving(true);
     setError(null);
     try {
-      const body = new FormData();
-      body.append("remove", "true");
-      const response = await fetch("/api/admin/hero-video", { method: "POST", body });
-      const json = await response.json();
+      const response = await fetch("/api/admin/hero-video", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ remove: true }),
+      });
+      const json = await readJson<{ url?: string | null; error?: string }>(response);
       if (!response.ok) {
-        throw new Error((json as { error?: string }).error ?? "Could not remove the video.");
+        throw new Error(json?.error ?? "Could not remove the video.");
       }
       setUrl(null);
       setFile(null);
@@ -156,7 +173,13 @@ export default function HeroVideoForm({ onSaved }: HeroVideoFormProps) {
           disabled={saving || !file}
           className="rounded-xl bg-neon px-6 py-2.5 font-semibold text-charcoal shadow-glow-sm transition hover:bg-neon-soft disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {saving ? "Uploading…" : file ? "Upload and replace" : "Save video"}
+          {saving
+            ? progress !== null && progress > 0
+              ? `Uploading… ${progress}%`
+              : "Uploading…"
+            : file
+              ? "Upload and replace"
+              : "Save video"}
         </button>
         {url && (
           <button
