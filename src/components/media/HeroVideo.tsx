@@ -17,7 +17,7 @@ export default function HeroVideo() {
     <section className="relative overflow-hidden" aria-label="Facility video">
       <video
         key={src}
-        className="h-[42vh] min-h-[240px] w-full object-cover sm:h-[52vh]"
+        className="h-[42vh] min-h-[550px] w-full object-cover sm:h-[52vh]"
         autoPlay
         muted
         loop

@@ -52,8 +52,12 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    const searchParams = request.nextUrl.searchParams;
+    const folder = searchParams.get("folder")?.trim() || "pitches";
+    const safeFolder = folder.replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 40) || "pitches";
+
     const blob = await put(
-      `pitches/${Date.now()}-${randomUUID().slice(0, 8)}.${extension}`,
+      `${safeFolder}/${Date.now()}-${randomUUID().slice(0, 8)}.${extension}`,
       file,
       {
         access: "public",

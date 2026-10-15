@@ -110,3 +110,14 @@ model AdminUser {
   createdAt    DateTime  @default(now())
   lastLoginAt  DateTime?
 }
+
+model Media {
+  id        String   @id @default(cuid())
+  url       String
+  alt       String?
+  caption   String?
+  order     Int      @default(0)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

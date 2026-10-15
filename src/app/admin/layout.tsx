@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { href: "/admin/bookings", label: "Bookings", icon: "🗓️" },
   { href: "/admin/slots", label: "Slots", icon: "⏱️" },
   { href: "/admin/pitches", label: "Courts", icon: "🏟️" },
+  { href: "/admin/media", label: "Media", icon: "🖼️" },
   { href: "/admin/cms", label: "Site settings", icon: "⚙️" },
   { href: "/admin/sheets-sync", label: "Sheets sync", icon: "📤" },
 ];

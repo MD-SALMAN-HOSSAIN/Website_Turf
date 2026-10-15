@@ -1,6 +1,18 @@
-import Image from "next/image";
+"use client";
 
-const MEDIA: { src: string; alt: string; caption: string }[] = [
+import Image from "next/image";
+import { useEffect, useState } from "react";
+
+interface MediaItem {
+  id: string;
+  url: string;
+  alt: string | null;
+  caption: string | null;
+  order: number;
+  active: boolean;
+}
+
+const DEFAULT_MEDIA: { src: string; alt: string; caption: string }[] = [
   {
     src: "/images/gallery/pool.svg",
     alt: "Swimming pool lanes",
@@ -34,6 +46,27 @@ const MEDIA: { src: string; alt: string; caption: string }[] = [
 ];
 
 export default function FacilityGallery() {
+  const [media, setMedia] = useState<MediaItem[]>([]);
+
+  useEffect(() => {
+    fetch("/api/media")
+      .then((res) => res.json())
+      .then((data) => {
+        setMedia(data.media || []);
+      })
+      .catch(() => {
+        setMedia([]);
+      });
+  }, []);
+
+  const items = media.length > 0
+    ? media.map((m) => ({
+        src: m.url,
+        alt: m.alt || "Facility image",
+        caption: m.caption || "",
+      }))
+    : DEFAULT_MEDIA;
+
   return (
     <section id="media" className="mx-auto max-w-6xl scroll-mt-24 px-4 py-14">
       <span className="inline-block rounded-full bg-neon/10 px-3 py-1 text-xs font-semibold text-neon ring-1 ring-neon/30">
@@ -48,9 +81,9 @@ export default function FacilityGallery() {
       </p>
 
       <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3">
-        {MEDIA.map((item) => (
+        {items.map((item, idx) => (
           <figure
-            key={item.src}
+            key={idx}
             className="group relative overflow-hidden rounded-2xl ring-1 ring-white/10"
           >
             <div className="relative aspect-video w-full">
@@ -63,9 +96,11 @@ export default function FacilityGallery() {
                 className="object-cover transition duration-300 group-hover:scale-105"
               />
             </div>
-            <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 to-transparent p-3 text-xs font-medium text-white">
-              {item.caption}
-            </figcaption>
+            {item.caption && (
+              <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 to-transparent p-3 text-xs font-medium text-white">
+                {item.caption}
+              </figcaption>
+            )}
           </figure>
         ))}
       </div>
